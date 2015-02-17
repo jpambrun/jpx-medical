@@ -1230,7 +1230,7 @@ var JpxImage = (function JpxImageClosure() {
         totalLength += dataItem.end - dataItem.start;
         codingpasses += dataItem.codingpasses;
       }
-      var encodedData = new Uint8Array(totalLength);
+      var encodedData = new Int16Array(totalLength);
       var position = 0;
       for (j = 0, jj = data.length; j < jj; j++) {
         dataItem = data[j];
@@ -1379,7 +1379,7 @@ var JpxImage = (function JpxImageClosure() {
         transformedTiles[c] = transformTile(context, tile, c);
       }
       var tile0 = transformedTiles[0];
-      var out = new Uint8Array(tile0.items.length * componentsCount);
+      var out = new Int16Array(tile0.items.length * componentsCount);
       var result = {
         left: tile0.left,
         top: tile0.top,
@@ -1445,16 +1445,35 @@ var JpxImage = (function JpxImageClosure() {
         }
       } else { // no multi-component transform
         for (c = 0; c < componentsCount; c++) {
-          var items = transformedTiles[c].items;
-          shift = components[c].precision - 8;
-          offset = (128 << shift) + 0.5;
-          max = (127.5 * (1 << shift));
-          min = -max;
-          for (pos = c, j = 0, jj = items.length; j < jj; j++) {
-            val = items[j];
-            out[pos] = val <= min ? 0 :
-                       val >= max ? 255 : (val + offset) >> shift;
-            pos += componentsCount;
+          if (components[c].precision === 8){
+            var items = transformedTiles[c].items;
+            shift = components[c].precision - 8;
+            offset = (128 << shift) + 0.5;
+            max = (127.5 * (1 << shift));
+            min = -max;
+            for (pos = c, j = 0, jj = items.length; j < jj; j++) {
+              val = items[j];
+              out[pos] = val <= min ? 0 :
+                         val >= max ? 255 : (val + offset) >> shift;
+              pos += componentsCount;
+            }
+          }else{
+            var isSigned = components[c].isSigned;
+            var items = transformedTiles[c].items;
+
+            if(isSigned){
+              shift = 0;
+              offset = 0;
+            }else{
+              shift = components[c].precision - 8;
+              offset = (128 << shift) + 0.5;
+            }
+
+            for (pos = c, j = 0, jj = items.length; j < jj; j++) {
+              val = items[j];
+              out[pos] = (val + offset);
+              pos += componentsCount;
+            }
           }
         }
       }
@@ -1543,7 +1562,7 @@ var JpxImage = (function JpxImageClosure() {
       var levelsLength = log2(Math.max(width, height)) + 1;
       this.levels = [];
       for (var i = 0; i < levelsLength; i++) {
-        var items = new Uint8Array(width * height);
+        var items = new Int16Array(width * height);
         for (var j = 0, jj = items.length; j < jj; j++) {
           items[j] = defaultValue;
         }
