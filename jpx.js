@@ -380,12 +380,10 @@ var JpxImage = (function JpxImageClosure() {
             case 0xFF57: // Packet length, main header (PLM)
             case 0xFF58: // Packet length, tile-part header (PLT)
             case 0xFF64: // Comment (COM)
+            case 0xFF53: // Coding style component (COC)
               length = readUint16(data, position);
               // skipping content
               break;
-            case 0xFF53: // Coding style component (COC)
-              throw new Error('JPX Error: Codestream code 0xFF53 (COC) is ' +
-                              'not implemented');
             default:
               throw new Error('JPX Error: Unknown codestream code: ' +
                               code.toString(16));
