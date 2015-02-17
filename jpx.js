@@ -28,7 +28,7 @@ var JpxImage = (function JpxImageClosure() {
     'HH': 2
   };
   function JpxImage() {
-    this.failOnCorruptedImage = false;
+    this.failOnCorruptedImage = true;
   }
   JpxImage.prototype = {
     parse: function JpxImage_parse(data) {
@@ -646,7 +646,6 @@ var JpxImage = (function JpxImageClosure() {
         }
         r = 0;
       }
-      throw new Error('JPX Error: Out of packets');
     };
   }
   function ResolutionLayerComponentPositionIterator(context) {
@@ -686,7 +685,6 @@ var JpxImage = (function JpxImageClosure() {
         }
         l = 0;
       }
-      throw new Error('JPX Error: Out of packets');
     };
   }
   function ResolutionPositionComponentLayerIterator(context) {
@@ -745,7 +743,6 @@ var JpxImage = (function JpxImageClosure() {
         }
         p = 0;
       }
-      throw new Error('JPX Error: Out of packets');
     };
   }
   function PositionComponentResolutionLayerIterator(context) {
@@ -792,7 +789,6 @@ var JpxImage = (function JpxImageClosure() {
         }
         px = 0;
       }
-      throw new Error('JPX Error: Out of packets');
     };
   }
   function ComponentPositionResolutionLayerIterator(context) {
@@ -838,7 +834,6 @@ var JpxImage = (function JpxImageClosure() {
         }
         py = 0;
       }
-      throw new Error('JPX Error: Out of packets');
     };
   }
   function getPrecinctIndexIfExist(
@@ -1096,6 +1091,10 @@ var JpxImage = (function JpxImageClosure() {
         skipBytes(4);
       }
       var packet = packetsIterator.nextPacket();
+      if (packet===undefined) {
+        //No more packets. Stream is truncated.
+        return;
+      }
       if (!readBits(1)) {
         continue;
       }
